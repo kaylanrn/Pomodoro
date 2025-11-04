@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tomato Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="bg-cream text-brown antialiased">
+    <!-- Header -->
+    <header
+      class="flex items-center justify-between px-8 py-4 border-b border-brown/30"
+    >
+      <div class="flex items-center gap-3 ml-8">
+        <img
+          src="assets/studying2.png"
+          alt="tomato logo"
+          class="w-12 h-12 -mt-1"
+        />
+        <h1
+          class="text-3xl font-bold tracking-wide text-[#f35846]"
+          style="font-family: 'Baloo 2', cursive"
+        >
+          Tomato Timer
+        </h1>
+      </div>
+      <div>
+        <button
+          id="pomodoroBtn"
+          class="px-4 py-1.5 border-2 border-[#7b5635] text-[#7b5635] rounded-lg hover:bg-[#7b5635] hover:text-[#fdf7f2] transition font-medium text-sm"
+        >
+          What is Pomodoro?
+        </button>
+      </div>
+    </header>
+
+    <!-- Pomodoro Info Modal -->
+    <div
+      id="pomodoroModal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full p-4 relative">
+        <button
+          id="closeModal"
+          class="absolute top-1 right-1 text-black-500 hover:text-gray-700 text-4xl"
+        >
+          &times;
+        </button>
+        <img
+          src="assets/Pomodoro Technique.svg"
+          alt="Pomodoro Technique"
+          class="rounded-lg w-full"
+        />
+      </div>
+    </div>
+
+    <!-- Main -->
+    <main class="grid grid-cols-12 gap-8 p-5">
+      <!-- LEFT SIDEBAR -->
+      <aside class="col-span-3 flex flex-col gap-2 text-center gap-4">
+        <div>
+          <button
+            id="customBtn"
+            class="w-80 py-3 mt-4 rounded-lg bg-[#7b5635] text-cream hover:bg-[#9e7253] hover:text-cream transition font-semibold shadow"
+          >
+            Custom Timer
+          </button>
+        </div>
+
+        <div></div>
+
+        <div class="space-y-3">
+          <button
+            data-type="Pomodoro"
+            class="presetBtn w-80 py-3 border-2 border-[#7b5635] text-[#7b5635] rounded-lg hover:bg-[#7b5635] hover:text-[#fdf7f2] transition font-semibold shadow"
+          >
+            Pomodoro
+          </button>
+          <button
+            data-type="Short Break"
+            class="presetBtn w-80 py-3 border-2 border-[#7b5635] text-[#7b5635] rounded-lg hover:bg-[#7b5635] hover:text-[#fdf7f2] transition font-semibold shadow"
+          >
+            Short Break
+          </button>
+          <button
+            data-type="Long Break"
+            class="presetBtn w-80 py-3 border-2 border-[#7b5635] text-[#7b5635] rounded-lg hover:bg-[#7b5635] hover:text-[#fdf7f2] transition font-semibold shadow"
+          >
+            Long Break
+          </button>
+        </div>
+
+        <div class="customImage text-center">
+          <img
+            src="assets/studying3.png"
+            alt="tomato big"
+            class="w-fit mx-auto"
+          />
+        </div>
+      </aside>
+
+      <!-- Custom Timer Modal -->
+      <div
+        id="customModal"
+        class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center"
+      >
+        >
+        <div class="bg-white rounded-2xl p-8 w-96 relative shadow-lg">
+          <h2 class="text-xl font-bold mb-4 text-center text-brown">
+            Custom Timer Settings
+          </h2>
+
+          <div class="flex flex-col gap-4">
+            <label class="flex justify-between items-center">
+              <span>Pomodoro (minutes)</span>
+              <input
+                id="pomodoroInput"
+                type="number"
+                min="1"
+                class="border rounded px-2 py-1 w-20"
+                value="25"
+              />
+            </label>
+
+            <label class="flex justify-between items-center">
+              <span>Short Break (minutes)</span>
+              <input
+                id="shortBreakInput"
+                type="number"
+                min="1"
+                class="border rounded px-2 py-1 w-20"
+                value="5"
+              />
+            </label>
+
+            <label class="flex justify-between items-center">
+              <span>Long Break (minutes)</span>
+              <input
+                id="longBreakInput"
+                type="number"
+                min="1"
+                class="border rounded px-2 py-1 w-20"
+                value="15"
+              />
+            </label>
+          </div>
+
+          <div class="flex justify-end mt-6 gap-4">
+            <button
+              id="closeCustomModal"
+              class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition"
+            >
+              Cancel
+            </button>
+            <button
+              id="saveCustomTimer"
+              class="px-4 py-2 rounded-lg bg-[#7b5635] text-cream hover:bg-[#9e7253] transition"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: TIMER -->
+      <section
+        class="col-span-6 bg-white rounded-3xl p-12 flex flex-col items-center shadow-lg"
+      >
+        <h2
+          id="timerTitle"
+          class="text-sm text-brown font-bold text-xl tracking-wider"
+        >
+          FOCUS TIME
+        </h2>
+
+        <!-- Timer Circle -->
+        <div class="relative mt-6 w-96 h-96 flex items-center justify-center">
+          <svg class="absolute w-full h-full -rotate-90" viewBox="0 0 140 140">
+            <!-- Background Circle -->
+            <circle
+              cx="70"
+              cy="70"
+              r="60"
+              stroke="#d9d9d9"
+              stroke-width="12"
+              fill="none"
+            ></circle>
+            <!-- Progress Circle -->
+            <circle
+              id="progressCircle"
+              cx="70"
+              cy="70"
+              r="60"
+              stroke="#7a5a44"
+              stroke-width="12"
+              fill="none"
+              stroke-linecap="round"
+              stroke-dasharray="377"
+              stroke-dashoffset="0"
+              class="transition-all duration-300 ease-linear"
+            />
+          </svg>
+          <div class="absolute text-7xl font-extrabold" id="timeLabel">
+            25:00
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="mt-10 flex items-center gap-10">
+          <!-- Restart -->
+          <button
+            id="restart"
+            class="controlBtn bg-brown/20 hover:bg-brown/40 text-brown rounded-full w-20 h-20 flex items-center justify-center shadow-xl border-2 border-brown transition-all"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-10 h-10"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.2-.38 2.31-1.03 3.22l1.45 1.45C19.07 15.01 20 13.11 20 11c0-4.42-3.58-8-8-8zm-6.41 2.59L4.14 7.03C2.93 8.54 2 10.46 2 13c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6 0-1.2.38-2.31 1.03-3.22z"
+              />
+            </svg>
+          </button>
+          <!-- Play / Pause -->
+          <button
+            id="playPause"
+            class="controlBtn bg-brown/20 hover:bg-brown/40 text-brown rounded-full w-20 h-20 flex items-center justify-center shadow-xl border-2 border-brown transition-all"
+          >
+            <svg
+              id="playIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-12 h-12"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M5 3v18l15-9z" />
+            </svg>
+            <svg
+              id="pauseIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              class="w-12 h-12 hidden"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT: TODO + MUSIC -->
+      <aside class="col-span-3 flex flex-col gap-6">
+        <!-- To do box -->
+        <div class="bg-cream/90 rounded-lg p-4 border border-brown/30 h-64">
+          <h3 class="text-center tracking-wider text-brown font-semibold">
+            TO DO LIST
+          </h3>
+          <hr class="my-3 border-brown/30" />
+          <ul id="todoList" class="space-y-3 overflow-auto max-h-40 px-2"></ul>
+
+          <div class="mt-3 flex gap-2">
+            <input
+              id="todoInput"
+              type="text"
+              placeholder="Add..."
+              class="flex-1 p-2 border rounded"
+            />
+            <button id="addTodo" class="px-3 py-2 rounded bg-brown text-cream">
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- Music box -->
+        <div class="bg-cream/90 rounded-lg p-4 border border-brown/30">
+          <h3 class="text-center tracking-wider text-brown font-semibold">
+            MUSIC
+          </h3>
+          <div class="flex items-center gap-4 mt-4">
+            <div
+              class="w-28 h-28 rounded-full bg-black/90 flex items-center justify-center"
+            >
+              <div class="w-20 h-20 rounded-full bg-red-500"></div>
+            </div>
+
+            <div class="flex-1">
+              <select id="trackSelect" class="w-full p-2 border rounded">
+                <option
+                  value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+                >
+                  Lo-Fi Chill (sample)
+                </option>
+                <option
+                  value="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+                >
+                  Lo-Fi 2 (sample)
+                </option>
+              </select>
+
+              <div class="mt-3 flex items-center gap-3">
+                <button id="musicPrev" class="w-9 h-9 controlSmall">◀</button>
+                <button id="musicPlay" class="w-9 h-9 controlSmall">▶</button>
+                <button id="musicPause" class="w-9 h-9 controlSmall hidden">
+                  ▮▮
+                </button>
+                <div id="musicTime" class="text-xs text-brown/60 ml-auto">
+                  0:00
+                </div>
+              </div>
+
+              <input
+                id="musicSeek"
+                type="range"
+                min="0"
+                max="100"
+                value="0"
+                class="w-full mt-2"
+              />
+            </div>
+          </div>
+
+          <audio id="audioPlayer" crossorigin="anonymous"></audio>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+  </body>
+</html>
