@@ -23,6 +23,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const todoInput = document.getElementById("todoInput");
   const addTodoBtn = document.getElementById("addTodo");
   const todoList = document.getElementById("todoList");
+  const audio = document.getElementById("audioPlayer");
+  const trackSelect = document.getElementById("trackSelect");
+  const musicPlay = document.getElementById("musicPlay");
+  const musicPause = document.getElementById("musicPause");
+  const musicSeek = document.getElementById("musicSeek");
+  const musicPrev = document.getElementById("musicPrev");
+  const musicNext = document.getElementById("musicNext");
+  const musicTime = document.getElementById("musicTime");
+  const vinyl = document.getElementById("vinyl");
+  const lofiToggle = document.getElementById("lofiToggle");
+  const musicBox = document.querySelector(".musicBox");
+  const originalMusicHTML = musicBox.innerHTML;
 
   /*  MODE STATE  */
   let totalSeconds = 25 * 60;
@@ -119,9 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   restartBtn.addEventListener("click", resetTimer);
 
+  let currentMode = "Pomodoro";
+
   presetBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
       const preset = btn.dataset.type || btn.textContent.trim();
+      currentMode = preset;
       totalSeconds = PRESETS[preset];
       resetTimer();
       if (presetImages[preset]) customImage.src = presetImages[preset];
@@ -144,7 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
     PRESETS.Pomodoro = (parseInt(pomodoroInput.value) || 25) * 60;
     PRESETS["Short Break"] = (parseInt(shortBreakInput.value) || 5) * 60;
     PRESETS["Long Break"] = (parseInt(longBreakInput.value) || 15) * 60;
-    totalSeconds = PRESETS.Pomodoro;
+
+    // update totalSeconds for current mode
+    totalSeconds = PRESETS[currentMode];
     resetTimer();
     customModal.classList.add("hidden");
   });
@@ -221,6 +238,134 @@ document.addEventListener("DOMContentLoaded", () => {
   addTodoBtn.addEventListener("click", addTodo);
   todoInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") addTodo();
+  });
+
+  /*  MUSIC PLAYER  */
+
+  const tracks = [
+    "https://archive.org/details/light-music-3hrs/Classical+Music+(2hrs).mp3",
+    "https://archive.org/details/light-music-3hrs/Light+Music+(3hrs).mp3",
+    "https://archive.org/details/light-music-3hrs/Ocean+Breeze+(2hrs).mp3",
+  ];
+
+  trackSelect.innerHTML = "";
+
+  tracks.forEach((track) => {
+    const opt = document.createElement("option");
+    opt.value = track;
+
+    let name = track.split("/").pop().replace(".mp3", "");
+    name = name.replace(/\+/g, " ").replace(/\%28/g, "(").replace(/\%29/g, ")");
+
+    opt.textContent = name;
+    trackSelect.appendChild(opt);
+  });
+
+  let currentTrackIndex = 0;
+
+  function loadTrack(index) {
+    currentTrackIndex = index;
+    audio.src = tracks[index];
+    audio.load();
+    audio
+      .play()
+      .then(() => {
+        musicPlay.classList.add("hidden");
+        musicPause.classList.remove("hidden");
+        vinyl.classList.add("vinyl-spin");
+      })
+      .catch((err) => console.warn("Playback blocked:", err));
+  }
+
+  musicPlay.addEventListener("click", () => {
+    if (!audio.src) loadTrack(currentTrackIndex);
+    else {
+      audio.play();
+      vinyl.classList.add("vinyl-spin");
+    }
+    musicPlay.classList.add("hidden");
+    musicPause.classList.remove("hidden");
+  });
+
+  musicPause.addEventListener("click", () => {
+    audio.pause();
+    musicPause.classList.add("hidden");
+    musicPlay.classList.remove("hidden");
+    vinyl.classList.remove("vinyl-spin");
+  });
+
+  musicPrev.addEventListener("click", () => {
+    currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    loadTrack(currentTrackIndex);
+  });
+
+  musicNext.addEventListener("click", () => {
+    currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+    loadTrack(currentTrackIndex);
+  });
+
+  trackSelect.addEventListener("change", () => {
+    loadTrack(trackSelect.selectedIndex);
+  });
+
+  audio.addEventListener("ended", () => {
+    currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+    loadTrack(currentTrackIndex);
+  });
+
+  audio.addEventListener("timeupdate", () => {
+    if (!audio.duration) return;
+
+    musicSeek.value = (audio.currentTime / audio.duration) * 100;
+
+    const hours = Math.floor(audio.currentTime / 3600);
+    const mins = Math.floor((audio.currentTime % 3600) / 60);
+    const secs = Math.floor(audio.currentTime % 60)
+      .toString()
+      .padStart(2, "0");
+
+    if (audio.duration >= 3600) {
+      musicTime.textContent = `${hours}:${mins
+        .toString()
+        .padStart(2, "0")}:${secs}`;
+    } else {
+      musicTime.textContent = `${mins}:${secs}`;
+    }
+  });
+
+  musicSeek.addEventListener("input", () => {
+    if (audio.duration) {
+      audio.currentTime = (musicSeek.value / 100) * audio.duration;
+    }
+  });
+
+  let isLofi = false;
+
+  lofiToggle.addEventListener("click", () => {
+    if (!isLofi) {
+      musicBox.innerHTML = `
+      <div class="w-full flex flex-col items-center">
+        <div class="w-full h-50 rounded-xl overflow-hidden shadow">
+          <iframe
+            width="100%"
+            height="100%"
+            style="border-radius: 12px"
+            src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1"
+            title="lofi hip hop radio - beats to relax/study to"
+            frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    `;
+      lofiToggle.textContent = "Back to Playlist";
+    } else {
+      musicBox.innerHTML = originalMusicHTML;
+      lofiToggle.textContent = "Study with Lofi?";
+    }
+
+    isLofi = !isLofi;
   });
 
   /*  TIMER FINISH DING  */
