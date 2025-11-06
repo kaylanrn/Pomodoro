@@ -35,8 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const musicNext = document.getElementById("musicNext");
   const musicTime = document.getElementById("musicTime");
   const lofiToggle = document.getElementById("lofiToggle");
-  const musicBox = document.querySelector(".musicBox");
-  const originalMusicHTML = musicBox.innerHTML;
+
+  const timerModal = document.getElementById("timerModal");
+  const timerModalMessage = document.getElementById("timerModalMessage");
+  const closeTimerModal = document.getElementById("closeTimerModal");
 
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
@@ -100,11 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (remaining < 0) {
         clearInterval(timer);
         running = false;
+        remaining = 0;
+        updateTimeLabel();
         playIcon.classList.remove("hidden");
         pauseIcon.classList.add("hidden");
-        updateTimeLabel();
-        playFinishDing();
-        notify("Session finished!");
+
+        timerFinished();
       } else {
         updateTimeLabel();
       }
@@ -379,6 +382,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /*  TIMER FINISH DING  */
+  closeTimerModal.addEventListener("click", () => {
+    timerModal.classList.add("hidden");
+  });
+
   function playFinishDing() {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -396,17 +403,17 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  function notify(msg) {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Tomato Timer", { body: msg });
-    } else if (
-      "Notification" in window &&
-      Notification.permission !== "denied"
-    ) {
-      Notification.requestPermission();
-    } else {
-      alert(msg);
-    }
+  function timerFinished() {
+    playFinishDing();
+
+    const messages = {
+      Pomodoro: "Pomodoro session finished!",
+      "Short Break": "Short break time!",
+      "Long Break": "Long break time!",
+    };
+
+    timerModalMessage.textContent = messages[currentMode] || "Time's up!";
+    timerModal.classList.remove("hidden");
   }
 
   updateTimeLabel();

@@ -376,6 +376,25 @@
           <audio id="audioPlayer" crossorigin="anonymous"></audio>
         </div>
       </aside>
+      <!-- Timer Finish Modal -->
+      <div
+        id="timerModal"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      >
+        <div
+          class="bg-cream p-12 rounded-lg shadow-lg w-100 text-center relative flex flex-col items-center"
+        >
+          <button
+            id="closeTimerModal"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-brown text-cream rounded-full hover:bg-[#7a4f3f]/90 transition text-lg font-bold"
+          >
+            ×
+          </button>
+          <h2 id="timerModalMessage" class="text-3xl font-bold text-brown py-4">
+            Time's up!
+          </h2>
+        </div>
+      </div>
     </main>
 
     <script src="script.js"></script>
