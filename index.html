@@ -346,7 +346,7 @@
               </div>
             </div>
 
-            <!-- LOFI BOX (hidden initially) -->
+            <!-- LOFI BOX -->
             <div id="lofiBox" class="hidden">
               <div class="w-full flex flex-col items-center">
                 <div class="w-full h-50 rounded-xl overflow-hidden shadow">
@@ -376,23 +376,41 @@
           <audio id="audioPlayer" crossorigin="anonymous"></audio>
         </div>
       </aside>
-      <!-- Timer Finish Modal -->
+      <!-- Timer Modal -->
       <div
         id="timerModal"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
       >
         <div
-          class="bg-cream p-12 rounded-lg shadow-lg w-100 text-center relative flex flex-col items-center"
+          class="relative bg-cream p-10 rounded-lg shadow-lg w-80 text-center flex flex-col items-center"
         >
           <button
             id="closeTimerModal"
-            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-brown text-cream rounded-full hover:bg-[#7a4f3f]/90 transition text-lg font-bold"
+            class="absolute top-3 right-3 text-brown text-2xl hover:text-[#f35846] transition"
           >
-            ×
+            ✖
           </button>
-          <h2 id="timerModalMessage" class="text-3xl font-bold text-brown py-4">
+
+          <h2
+            id="timerModalMessage"
+            class="text-4xl font-bold text-brown mt-8 mb-4 leading-snug"
+          >
             Time's up!
           </h2>
+
+          <img
+            id="pomodoroGif"
+            src="https://media.baamboozle.com/uploads/images/278920/1621972775_43281_gif-url.gif"
+            alt="Pomodoro finished"
+            class="mx-auto rounded-lg hidden w-40 h-40 object-cover"
+          />
+
+          <img
+            id="breakGif"
+            src="https://substackcdn.com/image/fetch/$s_!zKi4!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fbc0d3ede-4683-43ac-8451-1a32ac5b2dc2_498x442.gif"
+            alt="Break time"
+            class="mx-auto rounded-lg hidden w-40 h-40 object-cover"
+          />
         </div>
       </div>
     </main>

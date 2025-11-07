@@ -381,39 +381,100 @@ document.addEventListener("DOMContentLoaded", () => {
     isLofi = !isLofi;
   });
 
-  /*  TIMER FINISH DING  */
-  closeTimerModal.addEventListener("click", () => {
-    timerModal.classList.add("hidden");
-  });
+  /*  TIMER FINISH  */
+  let dingAudio = null;
+  let musicWasPlaying = false;
 
-  function playFinishDing() {
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "sine";
-      o.frequency.value = 880;
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start();
-      g.gain.setValueAtTime(0.001, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-      o.stop(ctx.currentTime + 0.6);
-    } catch (e) {}
+  function playLongDing() {
+    dingAudio = new Audio("assets/chime.mp3");
+    dingAudio.loop = true;
+    dingAudio.volume = 0.4;
+    dingAudio.play().catch((err) => console.warn("Ding blocked:", err));
+  }
+
+  function stopLongDing() {
+    if (dingAudio) {
+      dingAudio.pause();
+      dingAudio.currentTime = 0;
+      dingAudio = null;
+    }
+  }
+
+  function pauseLofi() {
+    const lofiFrame = document.querySelector("iframe");
+    if (lofiFrame && lofiFrame.src.includes("youtube.com")) {
+      lofiFrame.contentWindow.postMessage(
+        '{"event":"command","func":"pauseVideo","args":""}',
+        "*"
+      );
+    }
+  }
+
+  function resumeLofi() {
+    const lofiFrame = document.querySelector("iframe");
+    if (lofiFrame && lofiFrame.src.includes("youtube.com")) {
+      lofiFrame.contentWindow.postMessage(
+        '{"event":"command","func":"playVideo","args":""}',
+        "*"
+      );
+    }
+  }
+
+  function showTimerModal(msg) {
+    const modal = document.getElementById("timerModal");
+    const msgEl = document.getElementById("timerModalMessage");
+    const closeBtn = document.getElementById("closeTimerModal");
+    const pomodoroGif = document.getElementById("pomodoroGif");
+    const breakGif = document.getElementById("breakGif");
+
+    msgEl.textContent = msg;
+
+    pomodoroGif.classList.add("hidden");
+    breakGif.classList.add("hidden");
+
+    if (currentMode === "Pomodoro") {
+      pomodoroGif.classList.remove("hidden");
+    } else {
+      breakGif.classList.remove("hidden");
+    }
+
+    modal.classList.remove("hidden");
+
+    if (!audio.paused) {
+      musicWasPlaying = true;
+      audio.pause();
+    } else {
+      musicWasPlaying = false;
+    }
+    pauseLofi();
+
+    playLongDing();
+
+    closeBtn.onclick = () => {
+      stopLongDing();
+      modal.classList.add("hidden");
+
+      if (musicWasPlaying) {
+        audio.play().catch(() => {});
+      } else {
+        resumeLofi();
+      }
+
+      totalSeconds = PRESETS[currentMode];
+      remaining = totalSeconds;
+      updateTimeLabel();
+      setProgress(0);
+    };
   }
 
   function timerFinished() {
-    playFinishDing();
-
     const messages = {
-      Pomodoro: "Pomodoro session finished!",
-      "Short Break": "Short break time!",
-      "Long Break": "Long break time!",
+      Pomodoro: "Break Time!",
+      "Short Break": "Back to work!",
+      "Long Break": "Back to work!",
     };
-
-    timerModalMessage.textContent = messages[currentMode] || "Time's up!";
-    timerModal.classList.remove("hidden");
+    const msg = messages[currentMode] || "Time's up!";
+    showTimerModal(msg);
   }
 
   updateTimeLabel();
