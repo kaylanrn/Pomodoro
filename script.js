@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === modal) modal.classList.add("hidden");
   });
 
-  /*  TIMER FUNCTIONS  */
+  /* ===== TIMER FUNCTIONS ===== */
   circle.style.strokeDasharray = circumference;
   circle.style.strokeDashoffset = circumference;
 
@@ -139,6 +139,8 @@ document.addEventListener("DOMContentLoaded", () => {
     playIcon.classList.add("hidden");
     pauseIcon.classList.remove("hidden");
 
+    requestWakeLock();
+
     timer = setInterval(() => {
       remaining--;
       if (remaining < 0) {
@@ -149,6 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         playIcon.classList.remove("hidden");
         pauseIcon.classList.add("hidden");
 
+        releaseWakeLock();
         timerFinished();
       } else {
         updateTimeLabel();
@@ -161,6 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     playIcon.classList.remove("hidden");
     pauseIcon.classList.add("hidden");
     if (timer) clearInterval(timer);
+    releaseWakeLock();
   }
 
   function resetTimer() {
@@ -172,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pauseIcon.classList.add("hidden");
     updateTimeLabel();
     setProgress(0);
+    releaseWakeLock();
   }
 
   playPauseBtn.addEventListener("click", () => {
@@ -455,10 +460,10 @@ document.addEventListener("DOMContentLoaded", () => {
       stopLongDing();
       modal.classList.add("hidden");
 
-      if (musicWasPlaying) {
-        audio.play().catch(() => {});
-      } else {
+      if (isLofi) {
         resumeLofi();
+      } else if (musicWasPlaying) {
+        audio.play().catch(() => {});
       }
 
       totalSeconds = PRESETS[currentMode];
@@ -513,4 +518,34 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   updateTimeLabel();
+
+  let wakeLock = null;
+
+  async function requestWakeLock() {
+    try {
+      if ("wakeLock" in navigator) {
+        wakeLock = await navigator.wakeLock.request("screen");
+        console.log("Screen Wake Lock active.");
+        wakeLock.addEventListener("release", () => {
+          console.log("Screen Wake Lock released.");
+        });
+      } else {
+        console.warn("Wake Lock API not supported in this browser.");
+      }
+    } catch (err) {
+      console.error(`${err.name}, ${err.message}`);
+    }
+  }
+
+  function releaseWakeLock() {
+    if (wakeLock !== null) {
+      wakeLock.release();
+      wakeLock = null;
+    }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (wakeLock !== null && document.visibilityState === "visible") {
+      requestWakeLock();
+    }
+  });
 });
