@@ -25,12 +25,31 @@
           Tomato Timer
         </h1>
       </div>
-      <div>
+      <div class="flex gap-3">
         <button
           id="pomodoroBtn"
           class="px-4 py-1.5 border-2 border-[#7b5635] text-[#7b5635] rounded-lg hover:bg-[#7b5635] hover:text-[#fdf7f2] transition font-medium text-sm"
         >
           What is Pomodoro?
+        </button>
+        <button
+          id="feedbackBtn"
+          class="flex items-center gap-1 px-3 py-1.5 border-2 border-[#7b5635] text-[#7b5635] rounded-lg hover:bg-[#7b5635] hover:text-[#fdf7f2] transition font-medium text-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8 10h8m-8 4h6m2 8l4-4V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h10z"
+            />
+          </svg>
         </button>
       </div>
     </header>
@@ -55,13 +74,83 @@
       </div>
     </div>
 
+    <!-- Feedback Modal -->
+    <div
+      id="feedbackModal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-cream p-8 rounded-lg shadow-lg w-96 relative">
+        <button
+          id="closeFeedbackModal"
+          class="absolute top-3 right-3 text-brown text-2xl hover:text-[#a36b55] transition"
+        >
+          ×
+        </button>
+
+        <h2 class="text-2xl font-semibold text-brown text-center mb-4">
+          Send Feedback 🍅
+        </h2>
+
+        <form
+          id="feedbackForm"
+          action="https://formspree.io/f/movpgzyg"
+          method="POST"
+          class="flex flex-col gap-3"
+        >
+          <input type="hidden" name="_subject" value="Tomato Timer" />
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Your name"
+            class="p-2 border rounded focus:ring-2 focus:ring-[#7b5635] outline-none"
+            required
+          />
+
+          <textarea
+            name="message"
+            rows="4"
+            placeholder="Write your feedback..."
+            class="p-2 border rounded focus:ring-2 focus:ring-[#7b5635] outline-none"
+            required
+          ></textarea>
+
+          <button
+            type="submit"
+            class="bg-[#7b5635] text-[#fdf7f2] py-2 rounded-lg hover:bg-[#5c3e2a] transition font-medium"
+          >
+            Send Feedback
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Thank You Modal -->
+    <div
+      id="thankYouModal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-cream p-8 rounded-lg shadow-lg w-80 text-center relative">
+        <h2 class="text-3xl font-semibold text-brown mb-6">
+          Thank you for your feedback! ❤️
+        </h2>
+
+        <button
+          id="closeThankYouModal"
+          class="absolute bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-1.5 bg-[#7b5635] text-[#fdf7f2] rounded-lg hover:bg-[#5c3e2a] transition text-sm font-medium"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
     <!-- Main Content -->
     <main class="grid grid-cols-12 gap-8 p-5">
       <!-- LEFT SIDEBAR - MODE -->
       <aside class="col-span-3 flex flex-col gap-2 text-center gap-4">
         <div>
           <button
-            id="customBtn"
+            id="customTimerBtn"
             class="w-80 py-3 mt-4 rounded-lg bg-[#7b5635] text-cream hover:bg-[#9e7253] hover:text-cream transition font-semibold shadow"
           >
             Custom Timer
@@ -393,7 +482,7 @@
 
           <h2
             id="timerModalMessage"
-            class="text-4xl font-bold text-brown mt-8 mb-4 leading-snug"
+            class="text-4xl font-bold text-brown mt-8 leading-snug"
           >
             Time's up!
           </h2>
@@ -402,7 +491,7 @@
             id="pomodoroGif"
             src="https://media.baamboozle.com/uploads/images/278920/1621972775_43281_gif-url.gif"
             alt="Pomodoro finished"
-            class="mx-auto rounded-lg hidden w-40 h-40 object-cover"
+            class="mx-auto rounded-lg hidden w-40 h-40 mt-4 object-cover"
           />
 
           <img

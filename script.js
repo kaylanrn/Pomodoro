@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("pomodoroModal");
   const closeModal = document.getElementById("closeModal");
 
-  const customBtn = document.getElementById("customBtn");
+  const customTimerBtn = document.getElementById("customTimerBtn");
   const customModal = document.getElementById("customModal");
   const saveCustomTimer = document.getElementById("saveCustomTimer");
   const closeCustomModal = document.getElementById("closeCustomModal");
@@ -36,9 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const musicTime = document.getElementById("musicTime");
   const lofiToggle = document.getElementById("lofiToggle");
 
-  const timerModal = document.getElementById("timerModal");
-  const timerModalMessage = document.getElementById("timerModalMessage");
-  const closeTimerModal = document.getElementById("closeTimerModal");
+  const feedbackBtn = document.getElementById("feedbackBtn");
+  const feedbackModal = document.getElementById("feedbackModal");
+  const closeFeedbackModal = document.getElementById("closeFeedbackModal");
+  const feedbackForm = document.getElementById("feedbackForm");
+  const thankYouModal = document.getElementById("thankYouModal");
+  const closeThankYouModal = document.getElementById("closeThankYouModal");
 
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
@@ -48,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let remaining = totalSeconds;
   let timer = null;
   let running = false;
+  let currentMode = "Pomodoro";
 
   const PRESETS = {
     Pomodoro: 25 * 60,
@@ -67,10 +71,48 @@ document.addEventListener("DOMContentLoaded", () => {
     "Long Break": "LONG BREAK",
   };
 
+  presetBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const preset = btn.dataset.type || btn.textContent.trim();
+      currentMode = preset;
+      totalSeconds = PRESETS[preset];
+      resetTimer();
+      if (presetImages[preset]) customImage.src = presetImages[preset];
+      if (presetTitles[preset]) timerTitle.textContent = presetTitles[preset];
+
+      presetBtns.forEach((b) =>
+        b.classList.remove("bg-[#7b5635]", "text-[#fdf7f2]")
+      );
+      btn.classList.add("bg-[#7b5635]", "text-[#fdf7f2]");
+    });
+  });
+
+  customTimerBtn.addEventListener("click", () =>
+    customModal.classList.toggle("hidden")
+  );
+  closeCustomModal.addEventListener("click", () =>
+    customModal.classList.add("hidden")
+  );
+  saveCustomTimer.addEventListener("click", () => {
+    PRESETS.Pomodoro = (parseInt(pomodoroInput.value) || 25) * 60;
+    PRESETS["Short Break"] = (parseInt(shortBreakInput.value) || 5) * 60;
+    PRESETS["Long Break"] = (parseInt(longBreakInput.value) || 15) * 60;
+
+    totalSeconds = PRESETS[currentMode];
+    resetTimer();
+    customModal.classList.add("hidden");
+  });
+
+  pomodoroBtn.addEventListener("click", () => modal.classList.remove("hidden"));
+  closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.add("hidden");
+  });
+
+  /*  TIMER FUNCTIONS  */
   circle.style.strokeDasharray = circumference;
   circle.style.strokeDashoffset = circumference;
 
-  /*  TIMER FUNCTIONS  */
   function formatTime(s) {
     const m = Math.floor(s / 60)
       .toString()
@@ -132,52 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
     setProgress(0);
   }
 
-  /*  TIMER BUTTONS  */
   playPauseBtn.addEventListener("click", () => {
     running ? pauseTimer() : startTimer();
   });
 
   restartBtn.addEventListener("click", resetTimer);
-
-  let currentMode = "Pomodoro";
-
-  presetBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const preset = btn.dataset.type || btn.textContent.trim();
-      currentMode = preset;
-      totalSeconds = PRESETS[preset];
-      resetTimer();
-      if (presetImages[preset]) customImage.src = presetImages[preset];
-      if (presetTitles[preset]) timerTitle.textContent = presetTitles[preset];
-
-      presetBtns.forEach((b) =>
-        b.classList.remove("bg-[#7b5635]", "text-[#fdf7f2]")
-      );
-      btn.classList.add("bg-[#7b5635]", "text-[#fdf7f2]");
-    });
-  });
-
-  customBtn.addEventListener("click", () =>
-    customModal.classList.toggle("hidden")
-  );
-  closeCustomModal.addEventListener("click", () =>
-    customModal.classList.add("hidden")
-  );
-  saveCustomTimer.addEventListener("click", () => {
-    PRESETS.Pomodoro = (parseInt(pomodoroInput.value) || 25) * 60;
-    PRESETS["Short Break"] = (parseInt(shortBreakInput.value) || 5) * 60;
-    PRESETS["Long Break"] = (parseInt(longBreakInput.value) || 15) * 60;
-
-    totalSeconds = PRESETS[currentMode];
-    resetTimer();
-    customModal.classList.add("hidden");
-  });
-
-  pomodoroBtn.addEventListener("click", () => modal.classList.remove("hidden"));
-  closeModal.addEventListener("click", () => modal.classList.add("hidden"));
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.add("hidden");
-  });
 
   /*  TODO LIST  */
   function addTodo() {
@@ -476,6 +477,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const msg = messages[currentMode] || "Time's up!";
     showTimerModal(msg);
   }
+
+  /* FEEDBACK MODAL */
+  feedbackBtn.addEventListener("click", () => {
+    feedbackModal.classList.remove("hidden");
+  });
+
+  closeFeedbackModal.addEventListener("click", () => {
+    feedbackModal.classList.add("hidden");
+  });
+
+  closeThankYouModal.addEventListener("click", () => {
+    thankYouModal.classList.add("hidden");
+  });
+
+  feedbackForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(feedbackForm);
+
+    fetch(feedbackForm.action, {
+      method: "POST",
+      body: formData,
+      headers: { Accept: "application/json" },
+    })
+      .then((response) => {
+        if (response.ok) {
+          feedbackForm.reset();
+          feedbackModal.classList.add("hidden");
+          thankYouModal.classList.remove("hidden");
+        } else {
+          alert("Oops! Something went wrong.");
+        }
+      })
+      .catch(() => alert("Network error. Please try again later."));
+  });
 
   updateTimeLabel();
 });
