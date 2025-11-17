@@ -5,4 +5,8 @@
   Customize your work and break intervals, keep a to-do list, and enjoy a built-in music player for a motivating work vibe.
 </p>
 
-[![Project Screenshot](assets/project-screenshot.png)](https://pomodoro-tomato-timer.vercel.app/)
+<p align="center">
+  <a href="https://pomodoro-tomato-timer.vercel.app/" target="_blank" rel="noopener noreferrer">
+    <img src="assets/project-screenshot.png" alt="Project Screenshot" width="700">
+  </a>
+</p>
